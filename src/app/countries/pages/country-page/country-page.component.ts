@@ -26,19 +26,13 @@ export class CountryPageComponent implements OnInit{
       .pipe(
         //Recibe el valor anterior (params) y devuelve un una suscripción al observable que se
         //devuelve. Transforma un observable en otro observable
+        //switchMap( params => this.countriesService.searchCountryByAlphaCode( params.id ) )
         switchMap( ({id}) => this.countriesService.searchCountryByAlphaCode( id ) )
       )
       .subscribe( ( country ) => {
         if ( !country ) return this.router.navigateByUrl('')
         return this.country = country;
       })
-  }
-
-  searchCountry ( code: string ) {
-    this.countriesService.searchCountryByAlphaCode( code )
-      .subscribe( country => {
-        console.log( {country});
-      });
   }
 
 
