@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { catchError, delay, map, Observable, of, tap } from 'rxjs';
 
 import { Country } from '../interfaces/country';
 
@@ -9,6 +9,14 @@ export class CountriesService {
   private apiUrl: string = 'https://restcountries.com/v3.1';
 
   constructor(private http: HttpClient) { }
+
+  private getCountriesRequest( url: string ): Observable<Country[]> {
+    return this.http.get<Country[]>( url )
+      .pipe(
+        catchError( () => of([]) ),
+        delay(2000) //Una vez se emite el valor del observable no se queda la pantalla en blanco sin cargar
+      );
+  }
 
   searchCountryByAlphaCode( code: string ):  Observable<Country | null>  {
     const url = `${ this.apiUrl }/alpha/${code}`;
@@ -27,41 +35,17 @@ export class CountriesService {
     //Los operadores de RXJS permiten hacer cualquier cosa siempre que se tenga
     //un flujo de datos. Uno de ellos es el operador map de rxjs
     //Esto son extensiones reactivas
-    return this.http.get<Country[]>(url)
-      .pipe(
-        catchError (
-          error => {
-            console.log(error);
-            return of([]);
-          }
-        )
-      );
+    return this.getCountriesRequest(url);
   }
 
   searchCountry ( term: string ): Observable<Country[]> {
     const url = `${ this.apiUrl }/name/${term}`;
-    return this.http.get<Country[]>(url)
-      .pipe(
-        catchError (
-          error => {
-            console.log(error);
-            return of([]);
-          }
-        )
-      );
+    return this.getCountriesRequest(url);
   }
 
   searchRegion ( term: string ): Observable<Country[]> {
     const url = `${ this.apiUrl }/region/${term}`;
-    return this.http.get<Country[]>(url)
-      .pipe(
-        catchError (
-          error => {
-            console.log(error);
-            return of([]);
-          }
-        )
-      );
+    return this.getCountriesRequest(url);
   }
 
 
