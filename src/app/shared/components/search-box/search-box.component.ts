@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { debounceTime, Subject } from 'rxjs';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { debounceTime, Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'shared-search-box',
@@ -7,10 +7,11 @@ import { debounceTime, Subject } from 'rxjs';
 
   templateUrl: './search-box.component.html',
 })
-export class SearchBoxComponent implements OnInit {
+export class SearchBoxComponent implements OnInit, OnDestroy {
 
   //Es un tipo de observable manual. Es rxjs
   private debouncer: Subject<string> = new Subject<string>();
+  private debouncerSuscription?: Subscription;
 
   @Input()
   public placeholder: string = "";
@@ -23,7 +24,7 @@ export class SearchBoxComponent implements OnInit {
 
   ngOnInit(): void {
     //Se ejecuta después del constructor
-    this.debouncer
+    this.debouncerSuscription = this.debouncer
       .pipe(
         //Si estoy un 400 ms sin recibir información entonces lo emite
         debounceTime(400)
@@ -31,6 +32,11 @@ export class SearchBoxComponent implements OnInit {
     .subscribe( value => {
       this.onDebounce.emit(value);
     });
+  }
+
+  ngOnDestroy(): void {
+    this.debouncerSuscription?.unsubscribe();
+
   }
 
   emitValue( value: string ): void {
